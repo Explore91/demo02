@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Project List</title>
+    <style>
+        /* Basic Styling for better readability */
+        body {
+            font-family: 'Noto Sans Devanagari', sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+            color: #0056b3;
+        }
+        #filter-container {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        #filter-container label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        .district-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .district-options div {
+            display: flex;
+            align-items: center;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #007bff;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        .no-results {
+            text-align: center;
+            padding: 20px;
+            font-style: italic;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>आयोजना सूची</h1>
+
+    <div id="filter-container">
+        <label for="district-filter">जिल्ला छान्नुहोस्:</label>
+        <div id="district-options" class="district-options">
+            <!-- District checkboxes will be inserted here by JavaScript -->
+        </div>
+    </div>
+
+    <table id="project-table">
+        <thead>
+            <tr>
+                <th>क्र.सं.</th>
+                <th>जिल्ला</th>
+                <th>बजेट उपशिर्षक</th>
+                <th>कार्यक्रम/आयोजनाको नाम</th>
+                <th>जम्मा रकम रु. हजारमा</th>
+            </tr>
+        </thead>
+        <tbody id="table-body">
+            <!-- Table rows will be inserted here by JavaScript -->
+        </tbody>
+    </table>
+
+    <script>
+        // Step 1: Your data from the table
+        const projectData = [
+          { "k_s": "१", "karyalaya": "धनकुटा", "jilla": "इलाम", "budget": "सेवाविस्तार", "kharcha": "निर्माण", "naam": "११.४.१६.१०७४२ साखेजुंग वार्ड न १ (साविक १,२, ३,४) वार्डमा खानेपानी टंकी निर्माण तथा सेवा विस्तार योजना, इलाम न.पा. १, इलाम", "rakam": "२००००" },
+          { "k_s": "२", "karyalaya": "धनकुटा", "jilla": "इलाम", "budget": "गुणस्तर", "kharcha": "निर्माण", "naam": "११.४.१६.९४४७८ फिक्कल साना शहरी खा.पा.गु.सु.आ, सूर्योदय न.पा-१०, इलाम (स्रोत सहमति प्राप्त)", "rakam": "२००००" },
+          { "k_s": "३", "karyalaya": "धनकुटा", "jilla": "इलाम", "budget": "जलवायु", "kharcha": "निर्माण", "naam": "११.४.१६.७५५०८ सन्दकपुर बृहत खा पा आ, सन्दकपुर १-५, इलाम", "rakam": "३००००" },
+          { "k_s": "४", "karyalaya": "धनकुटा", "jilla": "इलाम", "budget": "जलवायु", "kharcha": "निर्माण", "naam": "११.४.१६.७५५०९ रोङ ६ बृहत खानेपानी आयोजना, रोङ गा.पा.-६ इलाम", "rakam": "३००००" },
+          { "k_s": "५", "karyalaya": "धनकुटा", "jilla": "इलाम", "budget": "जलवायु", "kharcha": "निर्माण", "naam": "११.४.१६.९५५२४ कन्याम पञ्चकन्या खानेपानी आयोजना, इलाम(सम्पन्न हुने)", "rakam": "७०००" },
+          { "k_s": "६", "karyalaya": "धनकुटा", "jilla": "इलाम", "budget": "जलवायु", "kharcha": "निर्माण", "naam": "११.४.१६.९५५६६ सोयाक खापाआ, इलाम नपा-११, इलाम(सम्पन्न हुने)", "rakam": "५०००" },
+          { "k_s": "७", "karyalaya": "धनकुटा", "jilla": "इलाम", "budget": "ढल", "kharcha": "निर्माण", "naam": "११.४.१८.५२७९ फिक्कल बरबोटे शान्तिचोक ढल निर्माण तथा प्रशोधन आयोजना निर्माण, इलाम", "rakam": "२००००" },
+          { "k_s": "८", "karyalaya": "धनकुटा", "jilla": "इलाम", "budget": "केन्द्रीय", "kharcha": "निर्माण", "naam": "११.४.१६.९०७३२ माई न.पा. बृहत. खा.पा.आ. माई न.पा.-१-१०, इलाम", "rakam": "३००००" },
+          { "k_s": "९", "karyalaya": "धनकुटा", "jilla": "इलाम", "budget": "केन्द्रीय", "kharcha": "निर्माण", "naam": "११.४.१६.९२१९६ रासिङ्गे, कोप्पे तोभाङ बृहत माईसेबुङ्ग-१,२,३ इलाम", "rakam": "२००००" },
+          { "k_s": "१०", "karyalaya": "धनकुटा", "jilla": "इलाम", "budget": "केन्द्रीय", "kharcha": "निर्माण", "naam": "११.४.१६.९३१९८ श्री अन्तु समालाबुङ्ग खा.पा.आ. सुर्योदय न.पा. ईलाम (सम्पन्न हुने)", "rakam": "७०००" },
+          { "k_s": "११", "karyalaya": "धनकुटा", "jilla": "इलाम", "budget": "केन्द्रीय", "kharcha": "निर्माण", "naam": "११.४.१६.९३२४३ माङसेबुङ पम्पिङ खानेपानी आयोजना, माङसेबुङ-४(इलाम) (क्रमागत सम्पन्न हुने)", "rakam": "७०००" },
+          { "k_s": "१२", "karyalaya": "धनकुटा", "jilla": "ताप्लेजुङ", "budget": "सेवाविस्तार", "kharcha": "निर्माण", "naam": "११.४.१६.९५५९९ फुङलिङ नपा १,२,३,४,५ फावाखोला (क्रमागत सम्पन्न हुने)", "rakam": "२५००" },
+          { "k_s": "१३", "karyalaya": "धनकुटा", "jilla": "ताप्लेजुङ", "budget": "सेवाविस्तार", "kharcha": "निर्माण", "naam": "११.४.१६.९६९१३ कल्चौडे दोभानखोला खा. पा. आ., सिरिजंघा गा.पा.-२, (क्रमागत सम्पन्न हुने)", "rakam": "१५००" },
+          { "k_s": "१४", "karyalaya": "धनकुटा", "jilla": "ताप्लेजुङ", "budget": "सेवाविस्तार", "kharcha": "निर्माण", "naam": "११.४.१६.१०९०७ देवलिङ्गे गुम्बा डाँडा -लहरे गाउँ खानेपानी तथा विस्तार आयोजना,ताप्लेजुङ्ग (क्रमागत सम्पन्न हुने)", "rakam": "२०००" },
+          { "k_s": "१५", "karyalaya": "धनकुटा", "jilla": "ताप्लेजुङ", "budget": "जलवायु", "kharcha": "निर्माण", "naam": "११.४.१६.९५५६० कल्चौडे देभान खोला खा पा आयोजना, सिरिजंघा-२, सादेवा, ताप्लेजुङ(सम्पन्न हुने)", "rakam": "२०००" },
+          { "k_s": "१६", "karyalaya": "धनकुटा", "jilla": "ताप्लेजुङ", "budget": "केन्द्रीय", "kharcha": "निर्माण", "naam": "११.४.१६.९०८५४ मैदाने जम्बुडाँडा फुङलिङ न.पा. बृहत.खा.पा.आ. ताप्लेजुङ्ग", "rakam": "३००००" },
+          { "k_s": "१७", "karyalaya": "धनकुटा", "jilla": "ताप्लेजुङ", "budget": "केन्द्रीय", "kharcha": "निर्माण", "naam": "११.४.१६.९३२१२ तमोर कोरिडोर खा.पा.यो. (योक्कलुङ्ग) (सम्पन्न हुने)", "rakam": "२०००" },
+          { "k_s": "१८", "karyalaya": "धनकुटा", "jilla": "ताप्लेजुङ", "budget": "केन्द्रीय", "kharcha": "निर्माण", "naam": "११.४.१६.१०१४४ मामंखे फाक्लेचुवा मुहान खानेपानी आयोजना,शिरिजंगा ३,ताप्लेजुङ्ग", "rakam": "३००००" },
+          { "k_s": "१९", "karyalaya": "धनकुटा", "jilla": "तेह्रथुम", "budget": "जलवायु", "kharcha": "निर्माण", "naam": "११.४.१६.९५५२८ हाङेगाउँ टुङिड्रेबल नागेथुम्की लिफ्टेड खा.पा.आ., आठराई १,४,५, तेह्रथुम जिल्ला अन्तर्गत पर्ने खानेपानी आयोजनाहरु)(सम्पन्न हुने)", "rakam": "७०००" },
+          { "k_s": "२०", "karyalaya": "धनकुटा", "jilla": "तेह्रथुम", "budget": "केन्द्रीय", "kharcha": "निर्माण", "naam": "११.४.१६.९०७७० सिम्ले जलजले खा.पा.आ. फेदाप गा.पा. १,३ तेह्रथुम", "rakam": "३००००" },
+          { "k_s": "२१", "karyalaya": "धनकुटा", "jilla": "तेह्रथुम", "budget": "केन्द्रीय", "kharcha": "निर्माण", "naam": "११.४.१६.९७७१६ आठराई सङ्क्रान्ति बजार खानेपानी आयोजना,तेह्रथुम (क्रमागत सम्पन्न हुने)", "rakam": "७०००" },
+          { "k_s": "२२", "karyalaya": "धनकुटा", "jilla": "धनकुटा", "budget": "सेवाविस्तार", "kharcha": "निर्माण", "naam": "११.४.१६.९६५२७ बोधे मौनाखोला/बोधे लिफ्ट खापायो चौबिसे गापा-५ (क्रमागत सम्पन्न हुने)", "rakam": "२०००" },
+          { "k_s": "२३", "karyalaya": "धनकुटा", "jilla": "धनकुटा", "budget": "सेवाविस्तार", "kharcha": "निर्माण", "naam": "११.४.१६.९६६५९ टिटाङ-ओख्राङ्ग, मुंसुवाटार, थलथलेन कोप्टाचोन सहिदभूमि-४,५ (क्रमागत सम्पन्न हुने)", "rakam": "२५००" },
+          { "k_s": "२४", "karyalaya": "धनकुटा", "jilla": "धनकुटा", "budget": "सेवाविस्तार", "kharcha": "निर्माण", "naam": "११.४.१६.९७७२२ सिम्सुवा खा.पा.यो. साँगुरीगढी-६ (क्रमागत सम्पन्न हुने )", "rakam": "१०००" },
+          { "k_s": "२५", "karyalaya": "धनकुटा", "jilla": "धनकुटा", "budget": "सेवाविस्तार", "kharcha": "निर्माण", "naam": "११.४.१६.९७७६५ पाख्रीबास न.पा.-८ मुगा (श्री राम मन्दिर तथा खरीडाँडा खा.पा.आ., धनकुटा (क्रमागत सम्पन्न हुने)", "rakam": "१५००" },
+          { "k_s": "२६", "karyalaya": "धनकुटा", "jilla": "धनकुटा", "budget": "जलवायु", "kharcha": "निर्माण", "naam": "११.४.१६.५४४९१ शहिद भूमि बृहत खा. पा. आ., शहिदभूमि-१-७, धनकुटा, धनकुटा", "rakam": "३००००" },
+          { "k_s": "२७", "karyalaya": "धनकुटा", "jilla": "धनकुटा", "budget": "जलवायु", "kharcha": "निर्माण", "naam": "११.४.१६.९५५३० ध्वजे, ओख्रे, लुम्फाजुङ्ग डाँडाबजार तुंखा, लांपेटार, निगाले, त्रिवेणी फाक्सिव, कमुवा मादेन याम्फाम खा.पा.आ., साँगुरीगढी गा.पा.-३,४,५, धनकुटा(सम्पन्न हुने)", "rakam": "४०००" },
+          { "k_s": "२८", "karyalaya": "धनकुटा", "jilla": "धनकुटा", "budget": "जलवायु", "kharcha": "निर्माण", "naam": "११.४.१६.९५५३१ चानुवा बृहत खा.पा.आ., महालक्ष्मी न.पा.-४, धनकुटा(सम्पन्न हुने)", "rakam": "२५००" },
+          { "k_s": "२९", "karyalaya": "धनकुटा", "jilla": "धनकुटा", "budget": "जलवायु", "kharcha": "निर्माण", "naam": "११.४.१६.९५५३२ महालक्ष्मी बृहत लिफ्ट खा.पा.आ., चैनपुर ११, धनकुटा (सम्पन्न हुने)", "rakam": "२५००" },
+          { "k_s": "३०", "karyalaya": "धनकुटा", "jilla": "धनकुटा", "budget": "जलवायु", "kharcha": "निर्माण", "naam": "११.४.१६.९५५३५ आलेगाउँ लिफ्टिङ्ग जौवारी मुहान लक्ष्मीखोला कागते तेताचौक निगाले, सिम्लेखोला माङमायां मुहान खा.पा.आ., महालक्ष्मी न.पा.-७, ८ र ९, धनकुटा(सम्पन्न हुने)", "rakam": "२५००" },
+          { "k_s": "४२", "karyalaya": "धनकुटा", "jilla": "भोजपुर", "budget": "सेवाविस्तार", "kharcha": "निर्माण", "naam": "११.४.१६.१०६८१ हतुवागढी गा.पा. वडा नं १ ढल निर्माण तथा प्रशोधन आयोजना ,भोजपुर(क्रमागत सम्पन्न हुने)", "rakam": "१००००" },
+          { "k_s": "४६", "karyalaya": "धनकुटा", "jilla": "विभिन्न", "budget": "सेवाविस्तार", "kharcha": "निर्माण", "naam": "११.४.१६.९५६६२ सम्पन्न भएका खानेपानी प्रणालीहरुको सेवा विस्तार, टुटना मर्मत तथा पुनस्थापना सम्बन्धी कार्य", "rakam": "३००००" }
+        ];
+
+        const tableBody = document.getElementById('table-body');
+        const districtOptionsContainer = document.getElementById('district-options');
+
+        // Function to render the table rows based on provided data
+        function renderTable(data) {
+            tableBody.innerHTML = ''; // Clear existing rows
+            if (data.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="5" class="no-results">कुनै नतिजा भेटिएन।</td></tr>';
+                return;
+            }
+            data.forEach(item => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${item.k_s}</td>
+                    <td>${item.jilla}</td>
+                    <td>${item.budget}</td>
+                    <td>${item.naam}</td>
+                    <td>${item.rakam}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Function to populate district filter checkboxes
+        function populateFilters() {
+            const districts = [...new Set(projectData.map(item => item.jilla))]; // Get unique districts
+            districts.sort().forEach(district => {
+                const optionDiv = document.createElement('div');
+                optionDiv.innerHTML = `
+                    <input type="checkbox" id="${district}" name="district" value="${district}">
+                    <label for="${district}">${district}</label>
+                `;
+                districtOptionsContainer.appendChild(optionDiv);
+            });
+
+            // Add event listener to all checkboxes
+            document.querySelectorAll('input[name="district"]').forEach(checkbox => {
+                checkbox.addEventListener('change', filterData);
+            });
+        }
+
+        // Function to filter data based on selected checkboxes
+        function filterData() {
+            const selectedDistricts = Array.from(document.querySelectorAll('input[name="district"]:checked')).map(cb => cb.value);
+            
+            if (selectedDistricts.length === 0) {
+                renderTable(projectData); // If no filter, show all data
+            } else {
+                const filteredData = projectData.filter(item => selectedDistricts.includes(item.jilla));
+                renderTable(filteredData);
+            }
+        }
+
+        // Initial setup when the page loads
+        populateFilters();
+        renderTable(projectData);
+
+    </script>
+</body>
+</html>
